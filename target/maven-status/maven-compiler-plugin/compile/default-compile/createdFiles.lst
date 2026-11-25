@@ -1,0 +1,14 @@
+com\avanade\cesar\validacao\controller\DocumentoController.class
+com\avanade\cesar\validacao\controller\ApiExceptionHandler.class
+com\avanade\cesar\validacao\service\ValidacaoRegraService.class
+com\avanade\cesar\validacao\dto\DadosDocumentoDTO.class
+com\avanade\cesar\validacao\dto\ResultadoValidacaoResponse.class
+com\avanade\cesar\validacao\service\DocumentoPipelineService.class
+com\avanade\cesar\validacao\service\ImagePreprocessingService.class
+com\avanade\cesar\validacao\repository\ValidacaoDocumentoRepository.class
+com\avanade\cesar\validacao\service\OcrService.class
+com\avanade\cesar\validacao\model\ValidacaoDocumento.class
+com\avanade\cesar\validacao\ValidacaoDocumentosApplication.class
+com\avanade\cesar\validacao\service\AiExtractionService.class
+com\avanade\cesar\validacao\model\StatusValidacao.class
+com\avanade\cesar\validacao\model\TipoDocumento.class

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validação Automatizada de Documentos — MVP</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+        body { background: #f4f6f9; color: #1f2937; margin: 0; padding: 2rem 1rem; }
+        .container { max-width: 860px; margin: 0 auto; }
+        .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        h1 { margin-top: 0; font-size: 1.6rem; color: #111827; }
+        h2 { margin-top: 0; font-size: 1.15rem; color: #374151; }
+        .subtitle { color: #6b7280; margin-top: -0.5rem; margin-bottom: 1.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.9rem; }
+        input[type="file"], input[type="text"], textarea {
+            width: 100%; padding: 0.65rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.95rem;
+        }
+        button {
+            background: #2563eb; color: #fff; border: none; padding: 0.7rem 1.2rem;
+            border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+        }
+        button:hover { background: #1d4ed8; }
+        button.secondary { background: #4b5563; margin-left: 0.5rem; }
+        .badge { display: inline-block; padding: 0.3rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; }
+        .APROVADO { background: #dcfce7; color: #166534; }
+        .REJEITADO { background: #fee2e2; color: #991b1b; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .field { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0.65rem; }
+        .field span { display: block; font-size: 0.75rem; color: #6b7280; text-transform: uppercase; }
+        .field strong { font-size: 0.95rem; color: #111827; }
+        ul.motivos { color: #991b1b; padding-left: 1.25rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 0.6rem; border-bottom: 1px solid #e5e7eb; }
+        th { color: #6b7280; font-weight: 600; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Validação Automatizada de Documentos</h1>
+    <p class="subtitle">MVP — Comprovante de Residência (OpenCV + Tesseract OCR + IA + Spring Boot)</p>
+
+    <div class="card">
+        <h2>1. Enviar Comprovante (Imagem ou PDF)</h2>
+        <form id="uploadForm">
+            <label for="file">Arquivo (PNG, JPG ou PDF)</label>
+            <input type="file" id="file" accept=".png,.jpg,.jpeg,.pdf" required>
+
+            <label for="cpfEsperado">CPF do Titular (opcional, para conferência cruzada)</label>
+            <input type="text" id="cpfEsperado" placeholder="Ex.: 52998224725">
+
+            <button type="submit">Validar Documento</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>2. Simulação Rápida sem Tesseract (Demonstração da Camada IA + Regras)</h2>
+        <label for="textoSimulado">Texto OCR Simulado</label>
+        <textarea id="textoSimulado" rows="6">COMPROVANTE DE RESIDENCIA - CONTA DE ENERGIA
+Nome: Maria Fernanda Silva
+CPF: 529.982.247-25
+Endereco: Av. Boa Viagem, 1450
+Cidade: Recife
+Estado: PE
+Data de Emissao: 10/11/2026</textarea>
+        <button type="button" onclick="validarTexto()">Validar Texto Simulado</button>
+        <button type="button" class="secondary" onclick="preencherVencido()">Testar Vencido (&gt; 90 dias)</button>
+        <button type="button" class="secondary" onclick="preencherIncompleto()">Testar Campo Ausente</button>
+    </div>
+
+    <div id="resultadoCard" class="card" style="display:none;">
+        <h2>Resultado da Análise</h2>
+        <div id="resultadoConteudo"></div>
+    </div>
+
+    <div class="card">
+        <h2>Histórico de Validações</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Arquivo</th>
+                <th>Titular</th>
+                <th>Emissão</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="historicoBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fileInput = document.getElementById('file');
+        const cpfEsperado = document.getElementById('cpfEsperado').value.trim();
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        if (cpfEsperado) formData.append('cpfEsperado', cpfEsperado);
+
+        const res = await fetch('/api/documentos/validar', { method: 'POST', body: formData });
+        const data = await res.json();
+        exibirResultado(data);
+        carregarHistorico();
+    });
+
+    async function validarTexto() {
+        const textoOcr = document.getElementById('textoSimulado').value;
+        const res = await fetch('/api/documentos/validar-texto', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nomeArquivo: 'demo-comprovante.txt', textoOcr })
+        });
+        const data = await res.json();
+        exibirResultado(data);
+        carregarHistorico();
+    }
+
+    function preencherVencido() {
+        document.getElementById('textoSimulado').value =
+`COMPROVANTE DE RESIDENCIA - CONTA DE AGUA
+Nome: Joao Pedro Alves
+CPF: 529.982.247-25
+Endereco: Rua da Aurora, 300
+Cidade: Recife
+Estado: PE
+Data de Emissao: 01/01/2025`;
+    }
+
+    function preencherIncompleto() {
+        document.getElementById('textoSimulado').value =
+`COMPROVANTE DE RESIDENCIA
+Nome: Carlos Henrique
+Cidade: Olinda
+Estado: PE
+Data de Emissao: 10/11/2026`;
+    }
+
+    function exibirResultado(data) {
+        const card = document.getElementById('resultadoCard');
+        const div = document.getElementById('resultadoConteudo');
+        const d = data.dadosExtraidos || {};
+        const motivosHtml = (data.motivosRejeicao && data.motivosRejeicao.length)
+            ? `<p><strong>Motivos da rejeição:</strong></p><ul class="motivos">${data.motivosRejeicao.map(m => `<li>${m}</li>`).join('')}</ul>`
+            : `<p style="color:#166534;font-weight:600;">Todos os critérios obrigatórios foram atendidos.</p>`;
+
+        div.innerHTML = `
+            <p><span class="badge ${data.status}">${data.status}</span> — <strong>${data.nomeArquivo}</strong></p>
+            <div class="grid">
+                <div class="field"><span>Nome</span><strong>${d.nome || 'Não encontrado'}</strong></div>
+                <div class="field"><span>CPF</span><strong>${d.cpf || 'Não encontrado'}</strong></div>
+                <div class="field"><span>Endereço</span><strong>${d.endereco || 'Não encontrado'}</strong></div>
+                <div class="field"><span>Cidade / UF</span><strong>${d.cidade || '—'} / ${d.estado || '—'}</strong></div>
+                <div class="field"><span>Data de Emissão</span><strong>${d.dataEmissao || 'Não encontrada'}</strong></div>
+            </div>
+            ${motivosHtml}
+        `;
+        card.style.display = 'block';
+    }
+
+    async function carregarHistorico() {
+        const res = await fetch('/api/documentos');
+        const lista = await res.json();
+        const tbody = document.getElementById('historicoBody');
+        tbody.innerHTML = lista.map(item => `
+            <tr>
+                <td>#${item.id}</td>
+                <td>${item.nomeArquivo}</td>
+                <td>${(item.dadosExtraidos && item.dadosExtraidos.nome) || '—'}</td>
+                <td>${(item.dadosExtraidos && item.dadosExtraidos.dataEmissao) || '—'}</td>
+                <td><span class="badge ${item.status}">${item.status}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    carregarHistorico();
+</script>
+</body>
+</html>

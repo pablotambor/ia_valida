@@ -1,0 +1,14 @@
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\controller\ApiExceptionHandler.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\controller\DocumentoController.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\dto\DadosDocumentoDTO.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\dto\ResultadoValidacaoResponse.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\model\StatusValidacao.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\model\TipoDocumento.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\model\ValidacaoDocumento.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\repository\ValidacaoDocumentoRepository.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\service\AiExtractionService.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\service\DocumentoPipelineService.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\service\ImagePreprocessingService.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\service\OcrService.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\service\ValidacaoRegraService.java
+D:\Downloads\!Github\ia_valida\ia_valida\src\main\java\com\avanade\cesar\validacao\ValidacaoDocumentosApplication.java
